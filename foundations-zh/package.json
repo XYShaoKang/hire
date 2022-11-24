@@ -7,10 +7,15 @@
   "author": "lynweklm@gmail.com",
   "license": "MIT",
   "scripts": {
-    "build": "shx rm -rf lib && tsc -p tsconfig.json --outDir lib"
+    "build": "shx rm -rf lib && tsc -p tsconfig.json --outDir lib",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
   },
   "devDependencies": {
+    "@types/jest": "27",
+    "jest": "27",
     "shx": "^0.3.2",
+    "ts-jest": "27",
     "typescript": "^3.6.2"
   },
   "dependencies": {
