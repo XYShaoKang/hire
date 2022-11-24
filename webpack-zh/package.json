@@ -7,11 +7,14 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "nodemon": "^2.0.20",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "build:watch": "nodemon node_modules/webpack/bin/webpack.js"
   },
   "dependencies": {
     "lodash": "^4.17.21"

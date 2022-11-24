@@ -1,0 +1,7 @@
+{
+  "verbose": true,
+  "watch": [
+    "webpack.config.js",
+    "src"
+  ]
+}
