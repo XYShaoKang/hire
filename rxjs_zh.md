@@ -21,33 +21,60 @@ class AutocompleteController {
    * 比如，用户依次输入 a, b, c
    * 那么 payload$ 流会获得三个值："a", "ab", "abc"
    */
-  payload$: Subject<string>;
+  payload$: Subject<string>
 
-  subscription: Subscription;
+  subscription: Subscription
 
   constructor() {
     // 除了此处的 .subscribe() 调用，其他地方都不应该调用 Observable/Subject 的 subscribe 方法
-    this.subscription = this.getAutoSearch().subscribe();
+    this.subscription = this.getAutoSearch().subscribe()
   }
 
   // 更新 Input 框中的搜索词
-  setSearchStr: (str: string) => void;
+  setSearchStr: (str: string) => void
   // 更新搜索状态
-  setLoading: (isLoading: boolean) => void;
+  setLoading: (isLoading: boolean) => void
   // 显示或隐藏警告信息
-  toggleWarning: (isShown?: boolean) => void;
+  toggleWarning: (isShown?: boolean) => void
   // 发送请求，获取搜索结果
-  searchQuery: (str: string) => Observable<User[]>;
+  searchQuery: (str: string) => Observable<User[]>
   // 更新搜索结果列表
-  setSearchResults: (users: User[]) => void;
+  setSearchResults: (users: User[]) => void
 
   // 你要实现的方法
   getAutoSearch() {
-    const search$ = (
-      /* ...你的代码... */
+    const input$ = this.payload$.pipe(share())
+    const reInput$ = input$
+    const search$ = input$.pipe(
+      debounceTime(500),
+      filter((str) => str.length <= 30),
+      mergeMap<string, Observable<User[]>>((str) => {
+        this.setLoading(true)
+        return race(this.searchQuery(str), reInput$).pipe(
+          tap(() => this.setLoading(false)),
+          filter((v) => typeof v !== 'string')
+        ) as Observable<User[]>
+      }),
+      tap((res: User[]) => this.setSearchResults(res))
     )
 
-    return search$;
+    input$
+      .pipe(
+        mergeMap((str) =>
+          str.length <= 30
+            ? input$.pipe(
+                take(1),
+                filter((s) => s.length > 30)
+              )
+            : input$.pipe(
+                take(1),
+                filter((s) => s.length <= 30)
+              )
+        )
+      )
+      .subscribe(() => this.toggleWarning())
+
+    return search$
   }
 }
 ```
